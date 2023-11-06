@@ -48,8 +48,35 @@ public class Engine {
 	 * CONSTRUCTORA QUE INSTANCIA TODOS LOS ATRIBUTOS
 	 */
 	public void Engine() {
-		
-		this.frame = new JFrame();
+		// INSTANCIAR EL MARCO DE LA VENTANA
+		this.frame = new JFrame("Calculadora V1");
+		// INSTANCIAR PANEL
+		this.contentPanel = new JPanel();
+		// INSTANCIAR EL PANEL DE EL DISPLAY
+		this.displayPanel = new JPanel();
+		// INSTANCIAR EL PANEL QUE VA A CONTENER LOS BOTONES
+		this.buttonPanel = new JPanel();
+
+		// INSTANCIAR EL TEXTO DEL DISPLAY
+		this.display = new JTextField();
+
+		// INSTANCIAR LOS BOTONES
+		this.n0 = new JButton("0");
+		this.n1 = new JButton("1");
+		this.n2 = new JButton("2");
+		this.n3 = new JButton("3");
+		this.n4 = new JButton("4");
+		this.n5 = new JButton("5");
+		this.n6 = new JButton("6");
+		this.n7 = new JButton("7");
+		this.n8 = new JButton("8");
+		this.n9 = new JButton("9");
+		this.divide = new JButton("/");
+		this.multiply = new JButton("X");
+		this.subtract = new JButton("-");
+		this.add = new JButton("+");
+		this.equal = new JButton("=");
+		this.reset = new JButton("R");
 	}
 
 }
