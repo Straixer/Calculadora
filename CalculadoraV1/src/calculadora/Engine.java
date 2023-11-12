@@ -6,6 +6,9 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -13,6 +16,9 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
+/**
+ * CLASE QUE CONTIENE LA CALCULADORA
+ */
 public class Engine implements ActionListener {
 
 	// Marco de la ventana
@@ -47,6 +53,10 @@ public class Engine implements ActionListener {
 	private enum ButtonType {
 		REGULAR, OPERATOR
 	}
+
+	// Patron de separación del display
+	private String patron;
+	private Pattern pattern;
 
 	// Almacenar temporalmente ciertos valores
 	private int num1, num2, result;
@@ -86,10 +96,17 @@ public class Engine implements ActionListener {
 		this.equal = new JButton("=");
 		this.reset = new JButton("R");
 
+		// PATRON QUE COMPRUEBA SI EL NUMERO TIENE EL FORMATO DE DIGITO+OPERADOR+DIGITO
+		this.patron = "(-?\\d+)([+\\-X/])(-?\\d+)";
+		this.pattern = Pattern.compile(patron);
+
 		setSettings();
 		addActionEvent();
 	}
 
+	/**
+	 * METODO QUE CONFIGURA LA INTERFAZ DE LA CALCULADORA
+	 */
 	public void setSettings() {
 		this.contentPanel.setLayout(new BorderLayout());
 		this.contentPanel.setBackground(new Color(255, 230, 195));
@@ -157,8 +174,9 @@ public class Engine implements ActionListener {
 		this.frame.setVisible(true);
 	}
 
-	// setFeaturesButton(JButton _button, ButtonType _type){}
-
+	/**
+	 * METODO QUE AÑADE TODOS LOS ACTION LISTENER DE LA CALCULADORA
+	 */
 	public void addActionEvent() {
 		this.n0.addActionListener(this);
 		this.n1.addActionListener(this);
@@ -178,6 +196,12 @@ public class Engine implements ActionListener {
 		this.reset.addActionListener(this);
 	}
 
+	/**
+	 * METODO QUE CAMBIA LA APARIENCIA DE LOS BOTONES
+	 * 
+	 * @param _button
+	 * @param _type
+	 */
 	public void setFeaturesButton(JButton _button, ButtonType _type) {
 		// SI ES REGULAR LE PINTO EL FONDO DE AZUL
 		if (_type == ButtonType.REGULAR) {
@@ -194,83 +218,71 @@ public class Engine implements ActionListener {
 		_button.setFocusable(false);// NO SE PUEDE QUEDAR SEÑALADO
 	}
 
+	/**
+	 * METODO QUE EL BOTON PULSADO Y EJECUTA LA FUNCIÓN DE ESTE
+	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
 
-		Object source = e.getSource();
 		String input_text = e.getActionCommand();
-
+		// SE COMPRUEBA SI SE HA PULSADO ALGUNA TECLA Y ACTIVA SU FINCIONALIDAD
 		if (input_text.equals("=")) {
+			// REALIZA LA OPERACIÓN CORRESPONDIENTE
 			operation();
-		} else if (input_text.equals("X")) {
-			this.display.setText(this.display.getText() + input_text);
-			this.operation = 'X';
-		} else if (input_text.equals("/")) {
-			this.display.setText(this.display.getText() + input_text);
-			this.operation = '/';
-		} else if (input_text.equals("+")) {
-			this.display.setText(this.display.getText() + input_text);
-			if (this.operation != 'X' && this.operation != '/') {
-				this.operation = '+';
-			}
-
-		} else if (input_text.equals("-")) {
-			this.display.setText(this.display.getText() + input_text);
-			if (this.operation != 'X' && this.operation != '/' && this.operation != '+') {
-				this.operation = '-';
-			}
-
 		} else if (input_text.equals("R")) {
+			// SE PONE LA PANTALLA VACÍA
 			this.display.setText("");
+			// LOS VALORES DE LOS NUMEROS SE PONEN A 0
 			this.num1 = 0;
 			this.num2 = 0;
-			this.operation = '.';
 		} else {
+			// ESCRIBE LA TECLA POR PANTALLA
 			this.display.setText(this.display.getText() + input_text);
 		}
 
 	}
 
+	/**
+	 * METODO EN EL QUE SE REALIZA LA LÓGICA DE LAS OPERACIONES Y SE OBTIENE LA
+	 * OPERACIÓN A REALIZAR
+	 */
 	public void operation() {
-		switch (this.operation) {
-		case '+': {
-			this.num1 = Integer.parseInt(this.display.getText().split("\\+")[0]);
-			this.num2 = Integer.parseInt(this.display.getText().split("\\+")[1]);
-			this.result = num1 + num2;
-			endOperation();
-			break;
-		}
-		case '-': {
-			String separacion[] = this.display.getText().split("(?<=\\d)(?=[-+*/])|(?<=[-+*/])(?=\\d)");
-			// this.num1 = Integer.parseInt(this.display.getText().split("-")[0]);
-			// this.num2 = Integer.parseInt(this.display.getText().split("-")[1]);
-			//this.num1 = Integer.parseInt(separacion[0]);
-			//this.num1 = Integer.parseInt(separacion[2]);
-			//this.result = num1 - num2;
-			// this.display.setText(separacion[0] + " a " + separacion[2]);
-			//endOperation();
-			for(String elemento: separacion) {
-				this.display.setText("\\"+this.display.getText()+elemento+"/");
-			}
-			break;
-		}
-		case 'X': {
-			this.num1 = Integer.parseInt(this.display.getText().split("X")[0]);
-			this.num2 = Integer.parseInt(this.display.getText().split("X")[1]);
-			this.result = num1 * num2;
-			endOperation();
-			break;
-		}
-		case '/': {
-			this.num1 = Integer.parseInt(this.display.getText().split("/")[0]);
-			this.num2 = Integer.parseInt(this.display.getText().split("/")[1]);
-			this.result = num1 / num2;
-			endOperation();
-			break;
-		}
-		case '.': {
+		// ACTUALIZO LA CADENA DEL PATRON
+		Matcher matcher = pattern.matcher(this.display.getText());
 
-		}
+		// COMPRUEBA QUE LA CADENA DEL DISPLAY SEA CORRECTA
+		if (matcher.find()) {
+			this.num1 = Integer.parseInt(matcher.group(1));
+			this.operation = matcher.group(2).charAt(0);
+			this.num2 = Integer.parseInt(matcher.group(3));
+
+			// SWITCH PARA CADA OPERADOR
+			switch (this.operation) {
+				case '+': {
+					this.result = num1 + num2;
+					endOperation();
+					break;
+				}
+				case '-': {
+					this.result = this.num1 - this.num2;
+					endOperation();
+					break;
+				}
+				case 'X': {
+					this.result = num1 * num2;
+					endOperation();
+					break;
+				}
+				case '/': {
+					this.result = num1 / num2;
+					endOperation();
+					break;
+				}
+
+			}
+
+		} else {
+			this.display.setText("Error");
 		}
 	}
 
@@ -281,7 +293,6 @@ public class Engine implements ActionListener {
 		this.display.setText("" + result);
 		this.num1 = this.result;
 		this.num2 = 0;
-		this.operation = '.';// CAMBIA EL OPERADOR A UNO QUE NO HACE NADA
 	}
 
 }
