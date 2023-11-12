@@ -2,20 +2,14 @@ package calculadora;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
-import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.Graphics;
 import java.awt.GridLayout;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
@@ -166,18 +160,35 @@ public class Engine implements ActionListener {
 	// setFeaturesButton(JButton _button, ButtonType _type){}
 
 	public void addActionEvent() {
+		this.n0.addActionListener(this);
+		this.n1.addActionListener(this);
+		this.n2.addActionListener(this);
+		this.n3.addActionListener(this);
+		this.n4.addActionListener(this);
+		this.n5.addActionListener(this);
+		this.n6.addActionListener(this);
+		this.n7.addActionListener(this);
+		this.n8.addActionListener(this);
+		this.n9.addActionListener(this);
+		this.divide.addActionListener(this);
+		this.multiply.addActionListener(this);
+		this.subtract.addActionListener(this);
+		this.add.addActionListener(this);
+		this.equal.addActionListener(this);
+		this.reset.addActionListener(this);
 	}
 
 	public void setFeaturesButton(JButton _button, ButtonType _type) {
 		// SI ES REGULAR LE PINTO EL FONDO DE AZUL
 		if (_type == ButtonType.REGULAR) {
 			_button.setBackground(new Color(12, 129, 182));
+			_button.setForeground(Color.white);// COLOR DEL TEXTO BLANCO
 		} else if (_type == ButtonType.OPERATOR) {
 			// SIE ES OPERADOR LE PINTO EL FONDO DE COLOR TURQUESA
 			_button.setBackground(new Color(14, 233, 190));
 
 		}
-		_button.setForeground(Color.white);// COLOR DEL TEXTO BLANCO
+
 		_button.setBorder(new LineBorder(new Color(255, 230, 195), 1, true));// LE PONGO UN BORDE DE COLOR NARANJA CLARO
 		_button.setFont(new Font("Nombre", Font.PLAIN, 16));// LE PONGO UNA FUENTE MÁS GRANDE
 		_button.setFocusable(false);// NO SE PUEDE QUEDAR SEÑALADO
@@ -185,8 +196,92 @@ public class Engine implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
 
+		Object source = e.getSource();
+		String input_text = e.getActionCommand();
+
+		if (input_text.equals("=")) {
+			operation();
+		} else if (input_text.equals("X")) {
+			this.display.setText(this.display.getText() + input_text);
+			this.operation = 'X';
+		} else if (input_text.equals("/")) {
+			this.display.setText(this.display.getText() + input_text);
+			this.operation = '/';
+		} else if (input_text.equals("+")) {
+			this.display.setText(this.display.getText() + input_text);
+			if (this.operation != 'X' && this.operation != '/') {
+				this.operation = '+';
+			}
+
+		} else if (input_text.equals("-")) {
+			this.display.setText(this.display.getText() + input_text);
+			if (this.operation != 'X' && this.operation != '/' && this.operation != '+') {
+				this.operation = '-';
+			}
+
+		} else if (input_text.equals("R")) {
+			this.display.setText("");
+			this.num1 = 0;
+			this.num2 = 0;
+			this.operation = '.';
+		} else {
+			this.display.setText(this.display.getText() + input_text);
+		}
+
+	}
+
+	public void operation() {
+		switch (this.operation) {
+		case '+': {
+			this.num1 = Integer.parseInt(this.display.getText().split("\\+")[0]);
+			this.num2 = Integer.parseInt(this.display.getText().split("\\+")[1]);
+			this.result = num1 + num2;
+			endOperation();
+			break;
+		}
+		case '-': {
+			String separacion[] = this.display.getText().split("(?<=\\d)(?=[-+*/])|(?<=[-+*/])(?=\\d)");
+			// this.num1 = Integer.parseInt(this.display.getText().split("-")[0]);
+			// this.num2 = Integer.parseInt(this.display.getText().split("-")[1]);
+			//this.num1 = Integer.parseInt(separacion[0]);
+			//this.num1 = Integer.parseInt(separacion[2]);
+			//this.result = num1 - num2;
+			// this.display.setText(separacion[0] + " a " + separacion[2]);
+			//endOperation();
+			for(String elemento: separacion) {
+				this.display.setText("\\"+this.display.getText()+elemento+"/");
+			}
+			break;
+		}
+		case 'X': {
+			this.num1 = Integer.parseInt(this.display.getText().split("X")[0]);
+			this.num2 = Integer.parseInt(this.display.getText().split("X")[1]);
+			this.result = num1 * num2;
+			endOperation();
+			break;
+		}
+		case '/': {
+			this.num1 = Integer.parseInt(this.display.getText().split("/")[0]);
+			this.num2 = Integer.parseInt(this.display.getText().split("/")[1]);
+			this.result = num1 / num2;
+			endOperation();
+			break;
+		}
+		case '.': {
+
+		}
+		}
+	}
+
+	/**
+	 * METODO QUE MUESTRA EL RESULTADO Y CAMBIA LAS VARIABLES
+	 */
+	public void endOperation() {
+		this.display.setText("" + result);
+		this.num1 = this.result;
+		this.num2 = 0;
+		this.operation = '.';// CAMBIA EL OPERADOR A UNO QUE NO HACE NADA
 	}
 
 }
