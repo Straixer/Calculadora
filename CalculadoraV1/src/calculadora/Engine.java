@@ -10,7 +10,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
@@ -108,6 +112,9 @@ public class Engine implements ActionListener {
 	 * METODO QUE CONFIGURA LA INTERFAZ DE LA CALCULADORA
 	 */
 	public void setSettings() {
+
+		darkMode();
+
 		this.contentPanel.setLayout(new BorderLayout());
 		this.contentPanel.setBackground(new Color(255, 230, 195));
 
@@ -293,6 +300,18 @@ public class Engine implements ActionListener {
 		this.display.setText("" + result);
 		this.num1 = this.result;
 		this.num2 = 0;
+	}
+
+	public void darkMode(){
+		
+		JMenuBar menuBar = new JMenuBar();
+		JMenu menu = new JMenu("Opciones");
+		JCheckBoxMenuItem item = new JCheckBoxMenuItem("Modo Oscuro");
+		
+		menu.add(item);
+		menuBar.add(menu);
+        this.frame.setJMenuBar(menuBar);
+
 	}
 
 }
