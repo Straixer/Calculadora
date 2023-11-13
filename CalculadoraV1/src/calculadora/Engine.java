@@ -21,12 +21,18 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
 /**
- * CLASE QUE CONTIENE LA CALCULADORA
+ * Clase que contiene la calculadora
  */
 public class Engine implements ActionListener {
 
 	// Marco de la ventana
 	private JFrame frame;
+
+	// Barra de herramientas
+	private JMenuBar menuBar;
+	private JMenu menu;
+	private JCheckBoxMenuItem itemDarkMode;
+
 	// Panel general que ocupa toda la ventana
 	private JPanel contentPanel;
 	// Panel norte que contiene el display
@@ -66,12 +72,28 @@ public class Engine implements ActionListener {
 	private int num1, num2, result;
 	private char operation;
 
+	// QUE TIPO DE INTERFAZ TIENE QUE MOSTRAR
+	private boolean lightMode;
+
+	// COLORES
+	private Color colorRegular;
+	private Color colorOperador;
+	private Color colorLetraRegular;
+	private Color colorLetraOperador;
+	private Color colorDisplay;
+
 	/**
-	 * CONSTRUCTORA QUE INSTANCIA TODOS LOS ATRIBUTOS
+	 * Constructora que instancia todos los atributos
 	 */
 	public Engine() {
 		// INSTANCIAR EL MARCO DE LA VENTANA
 		this.frame = new JFrame("Calculadora V1");
+
+		// INSTANCIAR LA BARRA DE HERRAMIENTAS
+		this.menuBar = new JMenuBar();
+		this.menu = new JMenu("Opciones");
+		this.itemDarkMode = new JCheckBoxMenuItem("Modo Oscuro");
+
 		// INSTANCIAR PANEL
 		this.contentPanel = new JPanel();
 		// INSTANCIAR EL PANEL DE EL DISPLAY
@@ -104,16 +126,27 @@ public class Engine implements ActionListener {
 		this.patron = "(-?\\d+)([+\\-X/])(-?\\d+)";
 		this.pattern = Pattern.compile(patron);
 
+		// POR DEFECTO TIENE EL MODO CLARO
+		this.lightMode = true;
+
+		// COLORES
+		this.colorRegular = new Color(12, 129, 182);
+		this.colorOperador = new Color(14, 233, 190);
+		this.colorLetraRegular = new Color(255, 230, 195);
+		this.colorLetraOperador = new Color(0, 0, 0);
+		this.colorDisplay = new Color(163, 233, 255);
+
 		setSettings();
 		addActionEvent();
 	}
 
 	/**
-	 * METODO QUE CONFIGURA LA INTERFAZ DE LA CALCULADORA
+	 * Metodo que configura la interfaz de la calculadora
 	 */
 	public void setSettings() {
 
-		darkMode();
+		// LLAMO AL METODO QUE PONE LOS COLORES DE LA INTERFAZ QUE PUEDEN CAMBAIR
+		changeColors();
 
 		this.contentPanel.setLayout(new BorderLayout());
 		this.contentPanel.setBackground(new Color(255, 230, 195));
@@ -127,28 +160,13 @@ public class Engine implements ActionListener {
 		// CONFIGURAR EL DISPLAY
 		this.display.setFont(new Font("Fuente Display", Font.PLAIN, 20));
 		this.display.setHorizontalAlignment(JTextField.RIGHT);
-		this.display.setBackground(new Color(163, 233, 255));
+		this.display.setBackground(this.colorDisplay);
 		this.display.setBorder(new EmptyBorder(0, 0, 0, 0));
 
-		// CONFIGURAR BOTONES REGULARES
-		setFeaturesButton(n0, ButtonType.REGULAR);
-		setFeaturesButton(n1, ButtonType.REGULAR);
-		setFeaturesButton(n2, ButtonType.REGULAR);
-		setFeaturesButton(n3, ButtonType.REGULAR);
-		setFeaturesButton(n4, ButtonType.REGULAR);
-		setFeaturesButton(n5, ButtonType.REGULAR);
-		setFeaturesButton(n6, ButtonType.REGULAR);
-		setFeaturesButton(n7, ButtonType.REGULAR);
-		setFeaturesButton(n8, ButtonType.REGULAR);
-		setFeaturesButton(n9, ButtonType.REGULAR);
-
-		// CONFIGURAR BOTONES OPERADORES
-		setFeaturesButton(divide, ButtonType.OPERATOR);
-		setFeaturesButton(multiply, ButtonType.OPERATOR);
-		setFeaturesButton(subtract, ButtonType.OPERATOR);
-		setFeaturesButton(add, ButtonType.OPERATOR);
-		setFeaturesButton(equal, ButtonType.OPERATOR);
-		setFeaturesButton(reset, ButtonType.OPERATOR);
+		// AÑADIR LA BARRA DE HERRAMIENTAS
+		this.menu.add(itemDarkMode);
+		this.menuBar.add(menu);
+		this.frame.setJMenuBar(menuBar);
 
 		this.displayPanel.add(display);
 
@@ -182,7 +200,7 @@ public class Engine implements ActionListener {
 	}
 
 	/**
-	 * METODO QUE AÑADE TODOS LOS ACTION LISTENER DE LA CALCULADORA
+	 * Metodo que añade todos los action listener de la calculadora
 	 */
 	public void addActionEvent() {
 		this.n0.addActionListener(this);
@@ -201,10 +219,11 @@ public class Engine implements ActionListener {
 		this.add.addActionListener(this);
 		this.equal.addActionListener(this);
 		this.reset.addActionListener(this);
+		this.itemDarkMode.addActionListener(this);
 	}
 
 	/**
-	 * METODO QUE CAMBIA LA APARIENCIA DE LOS BOTONES
+	 * Metodo que cambia la apariencia de los botones
 	 * 
 	 * @param _button
 	 * @param _type
@@ -212,32 +231,39 @@ public class Engine implements ActionListener {
 	public void setFeaturesButton(JButton _button, ButtonType _type) {
 		// SI ES REGULAR LE PINTO EL FONDO DE AZUL
 		if (_type == ButtonType.REGULAR) {
-			_button.setBackground(new Color(12, 129, 182));
-			_button.setForeground(Color.white);// COLOR DEL TEXTO BLANCO
+			_button.setBackground(this.colorRegular);
+			_button.setForeground(this.colorLetraRegular);
 		} else if (_type == ButtonType.OPERATOR) {
 			// SIE ES OPERADOR LE PINTO EL FONDO DE COLOR TURQUESA
-			_button.setBackground(new Color(14, 233, 190));
-
+			_button.setBackground(this.colorOperador);
+			_button.setForeground(this.colorLetraOperador);
 		}
 
 		_button.setBorder(new LineBorder(new Color(255, 230, 195), 1, true));// LE PONGO UN BORDE DE COLOR NARANJA CLARO
-		_button.setFont(new Font("Nombre", Font.PLAIN, 16));// LE PONGO UNA FUENTE MÁS GRANDE
+		_button.setFont(new Font("Nombre", Font.PLAIN, 16));// LE PONGO UNA FUENTE MAS GRANDE
 		_button.setFocusable(false);// NO SE PUEDE QUEDAR SEÑALADO
 	}
 
 	/**
-	 * METODO QUE EL BOTON PULSADO Y EJECUTA LA FUNCIÓN DE ESTE
+	 * Metodo que el boton pulsado y ejecuta la función de este
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
 
 		String input_text = e.getActionCommand();
 		// SE COMPRUEBA SI SE HA PULSADO ALGUNA TECLA Y ACTIVA SU FINCIONALIDAD
-		if (input_text.equals("=")) {
+		if (input_text.equals("Modo Oscuro")) {
+			if (itemDarkMode.isSelected()) {
+				this.lightMode = false;
+			} else {
+				this.lightMode = true;
+			}
+			changeColors();
+		} else if (input_text.equals("=")) {
 			// REALIZA LA OPERACIÓN CORRESPONDIENTE
 			operation();
 		} else if (input_text.equals("R")) {
-			// SE PONE LA PANTALLA VACÍA
+			// SE PONE LA PANTALLA VACIA
 			this.display.setText("");
 			// LOS VALORES DE LOS NUMEROS SE PONEN A 0
 			this.num1 = 0;
@@ -250,8 +276,8 @@ public class Engine implements ActionListener {
 	}
 
 	/**
-	 * METODO EN EL QUE SE REALIZA LA LÓGICA DE LAS OPERACIONES Y SE OBTIENE LA
-	 * OPERACIÓN A REALIZAR
+	 * Metodo en el que se realiza la lógica de las operaciones y se obtiene la
+	 * operación a realizar
 	 */
 	public void operation() {
 		// ACTUALIZO LA CADENA DEL PATRON
@@ -265,28 +291,32 @@ public class Engine implements ActionListener {
 
 			// SWITCH PARA CADA OPERADOR
 			switch (this.operation) {
-				case '+': {
-					this.result = num1 + num2;
-					endOperation();
-					break;
-				}
-				case '-': {
-					this.result = this.num1 - this.num2;
-					endOperation();
-					break;
-				}
-				case 'X': {
-					this.result = num1 * num2;
-					endOperation();
-					break;
-				}
-				case '/': {
-					this.result = num1 / num2;
-					endOperation();
-					break;
-				}
+			case '+': {
+				this.result = num1 + num2;
+				break;
+			}
+			case '-': {
+				this.result = this.num1 - this.num2;
+				break;
+			}
+			case 'X': {
+				this.result = num1 * num2;
+				break;
+			}
+			case '/': {
+				this.result = num1 / num2;
+
+				break;
+			}
 
 			}
+			// SE MUESTRA EL RESULTADO POR PANTALLA
+			this.display.setText("" + result);
+			// EL NUMERO 1 SE CONVIERTE EN EL RESULTADO
+			this.num1 = this.result;
+			// LOS OTROS VALORES SE PONEN A 0
+			this.num2 = 0;
+			this.result = 0;
 
 		} else {
 			this.display.setText("Error");
@@ -294,24 +324,44 @@ public class Engine implements ActionListener {
 	}
 
 	/**
-	 * METODO QUE MUESTRA EL RESULTADO Y CAMBIA LAS VARIABLES
+	 * Metodo que cambia el tema de la interfaz
 	 */
-	public void endOperation() {
-		this.display.setText("" + result);
-		this.num1 = this.result;
-		this.num2 = 0;
-	}
+	public void changeColors() {
+		if (this.lightMode) {
+			this.colorRegular = new Color(12, 129, 182);
+			this.colorOperador = new Color(14, 233, 190);
+			this.colorLetraRegular = new Color(255, 255, 255);
+			this.colorLetraOperador = new Color(0, 0, 0);
+			this.colorDisplay = new Color(163, 233, 255);
+		} else {
+			this.colorRegular = new Color(54, 48, 98);
+			this.colorOperador = new Color(67, 85, 133);
+			this.colorLetraRegular = new Color(255, 230, 195);
+			this.colorLetraOperador = new Color(255, 255, 255);
+			this.colorDisplay = new Color(129, 143, 180);
+		}
 
-	public void darkMode(){
-		
-		JMenuBar menuBar = new JMenuBar();
-		JMenu menu = new JMenu("Opciones");
-		JCheckBoxMenuItem item = new JCheckBoxMenuItem("Modo Oscuro");
-		
-		menu.add(item);
-		menuBar.add(menu);
-        this.frame.setJMenuBar(menuBar);
+		this.display.setBackground(colorDisplay);
 
+		// CONFIGURAR BOTONES REGULARES
+		setFeaturesButton(n0, ButtonType.REGULAR);
+		setFeaturesButton(n1, ButtonType.REGULAR);
+		setFeaturesButton(n2, ButtonType.REGULAR);
+		setFeaturesButton(n3, ButtonType.REGULAR);
+		setFeaturesButton(n4, ButtonType.REGULAR);
+		setFeaturesButton(n5, ButtonType.REGULAR);
+		setFeaturesButton(n6, ButtonType.REGULAR);
+		setFeaturesButton(n7, ButtonType.REGULAR);
+		setFeaturesButton(n8, ButtonType.REGULAR);
+		setFeaturesButton(n9, ButtonType.REGULAR);
+
+		// CONFIGURAR BOTONES OPERADORES
+		setFeaturesButton(divide, ButtonType.OPERATOR);
+		setFeaturesButton(multiply, ButtonType.OPERATOR);
+		setFeaturesButton(subtract, ButtonType.OPERATOR);
+		setFeaturesButton(add, ButtonType.OPERATOR);
+		setFeaturesButton(equal, ButtonType.OPERATOR);
+		setFeaturesButton(reset, ButtonType.OPERATOR);
 	}
 
 }

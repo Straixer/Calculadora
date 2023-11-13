@@ -1,5 +1,9 @@
 package calculadora;
-
+/**
+ * CLASE MAIN
+ * @author chris
+ *
+ */
 public class Main {
 
 	public static void main(String[] args) {
