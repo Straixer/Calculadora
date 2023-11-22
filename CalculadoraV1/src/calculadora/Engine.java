@@ -291,26 +291,26 @@ public class Engine implements ActionListener {
 
 			// SWITCH PARA CADA OPERADOR
 			switch (this.operation) {
-			case '+': {
-				this.result = num1 + num2;
-				break;
-			}
-			case '-': {
-				this.result = this.num1 - this.num2;
-				break;
-			}
-			case 'X': {
-				this.result = num1 * num2;
-				break;
-			}
-			case '/': {
-				this.result = num1 / num2;
+				case '+': {
+					this.result = num1 + num2;
+					break;
+				}
+				case '-': {
+					this.result = this.num1 - this.num2;
+					break;
+				}
+				case 'X': {
+					this.result = num1 * num2;
+					break;
+				}
+				case '/': {
+					this.result = num1 / num2;
+	
+					break;
+				}
 
-				break;
 			}
-
-			}
-			// SE MUESTRA EL RESULTADO POR PANTALLA
+			// SE MUESTRA EL RESULTADO POR PANTALLA a
 			this.display.setText("" + result);
 			// EL NUMERO 1 SE CONVIERTE EN EL RESULTADO
 			this.num1 = this.result;
