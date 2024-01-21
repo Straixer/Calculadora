@@ -384,14 +384,14 @@ public class Engine implements ActionListener {
 			VentanaEmergente v = new VentanaEmergente("Ventana informativa, quiero sacar un 10");
 		} else if (input_text.equals("Owner")) {
 			VentanaEmergente v = new VentanaEmergente("Ventana informativa, quiero sacar un 10");
-		}else if (input_text.equals("CASIO")) {
+		} else if (input_text.equals("CASIO")) {
 			try {
 				Desktop.getDesktop().browse(new URI("https://www.casio.com/es/"));
 			} catch (IOException e1) {
 			} catch (URISyntaxException e1) {
 
 			}
-		}else {
+		} else {
 			// ESCRIBE LA TECLA POR PANTALLA
 			this.display.setText(this.display.getText() + input_text);
 		}
@@ -512,7 +512,9 @@ public class Engine implements ActionListener {
 		this.datosPanel.setBackground(this.colorDisplay);
 
 	}
-
+	/**
+	 * Pasa el número del display a decimal para poder operar con los valores
+	 */
 	public void numerosaDecimal() {
 		Matcher matcher;
 		if (bs == Base.DECIMAL) {
@@ -557,6 +559,9 @@ public class Engine implements ActionListener {
 
 	}
 
+	/**
+	 * Pasa el número a la base correspondiente y lo escribe en el display
+	 */
 	public void escribirNumeros() {
 		String res = "Error";
 		if (bs == Base.DECIMAL) {
