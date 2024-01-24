@@ -2,16 +2,21 @@ package calculadora;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Desktop;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -37,10 +42,14 @@ public class Engine implements ActionListener {
 	private JPanel contentPanel;
 	// Panel norte que contiene el display
 	private JPanel displayPanel;
+	private JPanel datosPanel;
 	// Panel sur que contiene los botones
 	private JPanel buttonPanel;
 	// Display
 	private JTextField display;
+
+	private JLabel base;
+	private JButton casio;
 	// Botones
 	private JButton n0;
 	private JButton n1;
@@ -58,10 +67,27 @@ public class Engine implements ActionListener {
 	private JButton add;
 	private JButton equal;
 	private JButton reset;
+	private JButton a;
+	private JButton b;
+	private JButton c;
+	private JButton d;
+	private JButton e;
+	private JButton f;
+	private JButton info;
+	private JButton owner;
+	private JButton b2;
+	private JButton b8;
+	private JButton b10;
+	private JButton b16;
 
 	// Tipos de boton
 	private enum ButtonType {
-		REGULAR, OPERATOR
+		REGULAR, OPERATOR, BASE, LETTER, ESPECIAL
+	}
+
+	// Tipos de base numérica
+	private enum Base {
+		DECIMAL, BINARIO, HEXADECIMAL, OCTAL
 	}
 
 	// Patron de separación del display
@@ -71,6 +97,7 @@ public class Engine implements ActionListener {
 	// Almacenar temporalmente ciertos valores
 	private int num1, num2, result;
 	private char operation;
+	private Base bs;
 
 	// QUE TIPO DE INTERFAZ TIENE QUE MOSTRAR
 	private boolean lightMode;
@@ -78,8 +105,14 @@ public class Engine implements ActionListener {
 	// COLORES
 	private Color colorRegular;
 	private Color colorOperador;
+	private Color colorBase;
+	private Color colorLetter;
+	private Color colorEspecial;
 	private Color colorLetraRegular;
 	private Color colorLetraOperador;
+	private Color colorLetraBase;
+	private Color colorLetraLetter;
+	private Color colorLetraEspecial;
 	private Color colorDisplay;
 
 	/**
@@ -98,6 +131,11 @@ public class Engine implements ActionListener {
 		this.contentPanel = new JPanel();
 		// INSTANCIAR EL PANEL DE EL DISPLAY
 		this.displayPanel = new JPanel();
+
+		this.base = new JLabel("Introduce una base");
+		this.casio = new JButton("CASIO");
+
+		this.datosPanel = new JPanel();
 		// INSTANCIAR EL PANEL QUE VA A CONTENER LOS BOTONES
 		this.buttonPanel = new JPanel();
 
@@ -121,6 +159,18 @@ public class Engine implements ActionListener {
 		this.add = new JButton("+");
 		this.equal = new JButton("=");
 		this.reset = new JButton("R");
+		this.a = new JButton("A");
+		this.b = new JButton("B");
+		this.c = new JButton("C");
+		this.d = new JButton("D");
+		this.e = new JButton("E");
+		this.f = new JButton("F");
+		this.b2 = new JButton("B2");
+		this.b8 = new JButton("B8");
+		this.b10 = new JButton("B10");
+		this.b16 = new JButton("B16");
+		this.info = new JButton("Info");
+		this.owner = new JButton("Owner");
 
 		// PATRON QUE COMPRUEBA SI EL NUMERO TIENE EL FORMATO DE DIGITO+OPERADOR+DIGITO
 		this.patron = "(-?\\d+)([+\\-X/])(-?\\d+)";
@@ -132,6 +182,9 @@ public class Engine implements ActionListener {
 		// COLORES
 		this.colorRegular = new Color(12, 129, 182);
 		this.colorOperador = new Color(14, 233, 190);
+		this.colorBase = new Color(27, 113, 255);
+		this.colorLetter = new Color(14, 233, 190);
+		this.colorEspecial = new Color(14, 233, 190);
 		this.colorLetraRegular = new Color(255, 230, 195);
 		this.colorLetraOperador = new Color(0, 0, 0);
 		this.colorDisplay = new Color(163, 233, 255);
@@ -145,20 +198,23 @@ public class Engine implements ActionListener {
 	 */
 	public void setSettings() {
 
-		// LLAMO AL METODO QUE PONE LOS COLORES DE LA INTERFAZ QUE PUEDEN CAMBAIR
+		// LLAMO AL METODO QUE PONE LOS COLORES DE LA INTERFAZ QUE PUEDEN CAMBIAR
 		changeColors();
 
 		this.contentPanel.setLayout(new BorderLayout());
 		this.contentPanel.setBackground(new Color(255, 230, 195));
 
-		this.displayPanel.setLayout(new GridLayout(1, 1));
+		this.displayPanel.setLayout(new GridLayout(2, 1));
 		this.displayPanel.setBackground(new Color(255, 230, 195));
 
-		this.buttonPanel.setLayout(new GridLayout(4, 4));
+		this.datosPanel.setLayout(new GridLayout(1, 2));
+		this.datosPanel.setBackground(this.colorDisplay);
+
+		this.buttonPanel.setLayout(new GridLayout(7, 4));
 		this.buttonPanel.setBackground(new Color(255, 230, 195));
 
 		// CONFIGURAR EL DISPLAY
-		this.display.setFont(new Font("Fuente Display", Font.PLAIN, 20));
+		this.display.setFont(new Font("Fuente Display", Font.PLAIN, 30));
 		this.display.setHorizontalAlignment(JTextField.RIGHT);
 		this.display.setBackground(this.colorDisplay);
 		this.display.setBorder(new EmptyBorder(0, 0, 0, 0));
@@ -168,8 +224,25 @@ public class Engine implements ActionListener {
 		this.menuBar.add(menu);
 		this.frame.setJMenuBar(menuBar);
 
+		this.datosPanel.add(this.base);
+		setFeaturesButton(this.casio, ButtonType.ESPECIAL);
+		this.datosPanel.add(this.casio);
+
+		this.displayPanel.add(this.datosPanel);
 		this.displayPanel.add(display);
 
+		this.buttonPanel.add(b2);
+		this.buttonPanel.add(b8);
+		this.buttonPanel.add(b10);
+		this.buttonPanel.add(b16);
+		this.buttonPanel.add(a);
+		this.buttonPanel.add(b);
+		this.buttonPanel.add(c);
+		this.buttonPanel.add(info);
+		this.buttonPanel.add(d);
+		this.buttonPanel.add(e);
+		this.buttonPanel.add(f);
+		this.buttonPanel.add(owner);
 		this.buttonPanel.add(n7);
 		this.buttonPanel.add(n8);
 		this.buttonPanel.add(n9);
@@ -195,7 +268,7 @@ public class Engine implements ActionListener {
 		this.frame.add(contentPanel);
 		// CONFIGURO LA VENTANA PARA QUE APAREZCA EN PANTALLA Y SE CIERRE
 		this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.frame.setSize(300, 300);
+		this.frame.setSize(400, 400);
 		this.frame.setVisible(true);
 	}
 
@@ -220,6 +293,19 @@ public class Engine implements ActionListener {
 		this.equal.addActionListener(this);
 		this.reset.addActionListener(this);
 		this.itemDarkMode.addActionListener(this);
+		this.a.addActionListener(this);
+		this.b.addActionListener(this);
+		this.c.addActionListener(this);
+		this.d.addActionListener(this);
+		this.e.addActionListener(this);
+		this.f.addActionListener(this);
+		this.b2.addActionListener(this);
+		this.b8.addActionListener(this);
+		this.b10.addActionListener(this);
+		this.b16.addActionListener(this);
+		this.owner.addActionListener(this);
+		this.info.addActionListener(this);
+		this.casio.addActionListener(this);
 	}
 
 	/**
@@ -237,6 +323,18 @@ public class Engine implements ActionListener {
 			// SIE ES OPERADOR LE PINTO EL FONDO DE COLOR TURQUESA
 			_button.setBackground(this.colorOperador);
 			_button.setForeground(this.colorLetraOperador);
+		} else if (_type == ButtonType.BASE) {
+			// SIE ES OPERADOR LE PINTO EL FONDO DE COLOR TURQUESA
+			_button.setBackground(this.colorBase);
+			_button.setForeground(this.colorLetraBase);
+		} else if (_type == ButtonType.LETTER) {
+			// SIE ES OPERADOR LE PINTO EL FONDO DE COLOR TURQUESA
+			_button.setBackground(this.colorLetter);
+			_button.setForeground(this.colorLetraLetter);
+		} else if (_type == ButtonType.ESPECIAL) {
+			// SIE ES OPERADOR LE PINTO EL FONDO DE COLOR TURQUESA
+			_button.setBackground(this.colorEspecial);
+			_button.setForeground(this.colorLetraEspecial);
 		}
 
 		_button.setBorder(new LineBorder(new Color(255, 230, 195), 1, true));// LE PONGO UN BORDE DE COLOR NARANJA CLARO
@@ -265,9 +363,34 @@ public class Engine implements ActionListener {
 		} else if (input_text.equals("R")) {
 			// SE PONE LA PANTALLA VACIA
 			this.display.setText("");
+			this.base.setText("Introduce una base");
 			// LOS VALORES DE LOS NUMEROS SE PONEN A 0
 			this.num1 = 0;
 			this.num2 = 0;
+			this.bs = null;
+		} else if (input_text.equals("B2")) {
+			this.base.setText("Base 2");
+			bs = Base.BINARIO;
+		} else if (input_text.equals("B8")) {
+			this.base.setText("Base 8");
+			bs = Base.OCTAL;
+		} else if (input_text.equals("B10")) {
+			this.base.setText("Base 10");
+			bs = Base.DECIMAL;
+		} else if (input_text.equals("B16")) {
+			this.base.setText("Base 16");
+			bs = Base.HEXADECIMAL;
+		} else if (input_text.equals("Info")) {
+			VentanaEmergente v = new VentanaEmergente("Ventana informativa, quiero sacar un 10");
+		} else if (input_text.equals("Owner")) {
+			VentanaEmergente v = new VentanaEmergente("Ventana informativa, quiero sacar un 10");
+		} else if (input_text.equals("CASIO")) {
+			try {
+				Desktop.getDesktop().browse(new URI("https://www.casio.com/es/"));
+			} catch (IOException e1) {
+			} catch (URISyntaxException e1) {
+
+			}
 		} else {
 			// ESCRIBE LA TECLA POR PANTALLA
 			this.display.setText(this.display.getText() + input_text);
@@ -281,46 +404,39 @@ public class Engine implements ActionListener {
 	 */
 	public void operation() {
 		// ACTUALIZO LA CADENA DEL PATRON
-		Matcher matcher = pattern.matcher(this.display.getText());
+		numerosaDecimal();
 
 		// COMPRUEBA QUE LA CADENA DEL DISPLAY SEA CORRECTA
-		if (matcher.find()) {
-			this.num1 = Integer.parseInt(matcher.group(1));
-			this.operation = matcher.group(2).charAt(0);
-			this.num2 = Integer.parseInt(matcher.group(3));
 
-			// SWITCH PARA CADA OPERADOR
-			switch (this.operation) {
-				case '+': {
-					this.result = num1 + num2;
-					break;
-				}
-				case '-': {
-					this.result = this.num1 - this.num2;
-					break;
-				}
-				case 'X': {
-					this.result = num1 * num2;
-					break;
-				}
-				case '/': {
-					this.result = num1 / num2;
-	
-					break;
-				}
-
+		// SWITCH PARA CADA OPERADOR
+		switch (this.operation) {
+			case '+': {
+				this.result = num1 + num2;
+				break;
 			}
-			// SE MUESTRA EL RESULTADO POR PANTALLA a
-			this.display.setText("" + result);
-			// EL NUMERO 1 SE CONVIERTE EN EL RESULTADO
-			this.num1 = this.result;
-			// LOS OTROS VALORES SE PONEN A 0
-			this.num2 = 0;
-			this.result = 0;
+			case '-': {
+				this.result = this.num1 - this.num2;
+				break;
+			}
+			case 'X': {
+				this.result = num1 * num2;
+				break;
+			}
+			case '/': {
+				this.result = num1 / num2;
 
-		} else {
-			this.display.setText("Error");
+				break;
+			}
+
 		}
+		// SE MUESTRA EL RESULTADO POR PANTALLA
+		escribirNumeros();
+		// EL NUMERO 1 SE CONVIERTE EN EL RESULTADO
+		this.num1 = this.result;
+		// LOS OTROS VALORES SE PONEN A 0
+		this.num2 = 0;
+		this.result = 0;
+
 	}
 
 	/**
@@ -330,14 +446,26 @@ public class Engine implements ActionListener {
 		if (this.lightMode) {
 			this.colorRegular = new Color(12, 129, 182);
 			this.colorOperador = new Color(14, 233, 190);
+			this.colorBase = new Color(27, 113, 255);
+			this.colorLetter = new Color(27, 255, 150);
+			this.colorEspecial = new Color(255, 27, 113);
 			this.colorLetraRegular = new Color(255, 255, 255);
 			this.colorLetraOperador = new Color(0, 0, 0);
+			this.colorLetraBase = new Color(0, 0, 0);
+			this.colorLetraLetter = new Color(0, 0, 0);
+			this.colorLetraEspecial = new Color(0, 0, 0);
 			this.colorDisplay = new Color(163, 233, 255);
 		} else {
 			this.colorRegular = new Color(54, 48, 98);
 			this.colorOperador = new Color(67, 85, 133);
+			this.colorBase = new Color(169, 27, 255);
+			this.colorLetter = new Color(255, 27, 132);
+			this.colorEspecial = new Color(14, 233, 190);
 			this.colorLetraRegular = new Color(255, 230, 195);
 			this.colorLetraOperador = new Color(255, 255, 255);
+			this.colorLetraBase = new Color(0, 0, 0);
+			this.colorLetraLetter = new Color(0, 0, 0);
+			this.colorLetraEspecial = new Color(0, 0, 0);
 			this.colorDisplay = new Color(129, 143, 180);
 		}
 
@@ -362,6 +490,90 @@ public class Engine implements ActionListener {
 		setFeaturesButton(add, ButtonType.OPERATOR);
 		setFeaturesButton(equal, ButtonType.OPERATOR);
 		setFeaturesButton(reset, ButtonType.OPERATOR);
+
+		// CONFIGURAR BOTONES BASE
+		setFeaturesButton(b2, ButtonType.BASE);
+		setFeaturesButton(b8, ButtonType.BASE);
+		setFeaturesButton(b10, ButtonType.BASE);
+		setFeaturesButton(b16, ButtonType.BASE);
+
+		// CONFIGURAR BOTONES LETTER
+		setFeaturesButton(a, ButtonType.LETTER);
+		setFeaturesButton(b, ButtonType.LETTER);
+		setFeaturesButton(c, ButtonType.LETTER);
+		setFeaturesButton(d, ButtonType.LETTER);
+		setFeaturesButton(e, ButtonType.LETTER);
+		setFeaturesButton(f, ButtonType.LETTER);
+
+		// CONFIGURAR BOTONES ESPECIALES
+		setFeaturesButton(info, ButtonType.ESPECIAL);
+		setFeaturesButton(owner, ButtonType.ESPECIAL);
+
+		this.datosPanel.setBackground(this.colorDisplay);
+
+	}
+	/**
+	 * Pasa el número del display a decimal para poder operar con los valores
+	 */
+	public void numerosaDecimal() {
+		Matcher matcher;
+		if (bs == Base.DECIMAL) {
+			this.patron = "(-?\\d+)([+\\-X/])(-?\\d+)";
+			this.pattern = Pattern.compile(patron);
+			matcher = pattern.matcher(this.display.getText());
+			if (matcher.find()) {
+				this.num1 = Integer.parseInt(matcher.group(1));
+				this.operation = matcher.group(2).charAt(0);
+				this.num2 = Integer.parseInt(matcher.group(3));
+			}
+		} else if (bs == Base.BINARIO) {
+			this.patron = "(-?\\d+)([+\\-X/])(-?\\d+)";
+			this.pattern = Pattern.compile(patron);
+			matcher = pattern.matcher(this.display.getText());
+			if (matcher.find()) {
+
+				this.num1 = Integer.parseInt(matcher.group(1), 2);
+				this.operation = matcher.group(2).charAt(0);
+				this.num2 = Integer.parseInt(matcher.group(3), 2);
+			}
+		} else if (bs == Base.OCTAL) {
+			this.patron = "(-?\\d+)([+\\-X/])(-?\\d+)";
+			this.pattern = Pattern.compile(patron);
+			matcher = pattern.matcher(this.display.getText());
+			if (matcher.find()) {
+
+				this.num1 = Integer.parseInt(matcher.group(1), 8);
+				this.operation = matcher.group(2).charAt(0);
+				this.num2 = Integer.parseInt(matcher.group(3), 8);
+			}
+		} else if (bs == Base.HEXADECIMAL) {
+			this.patron = "(-?\\p{XDigit}+)([+\\-X/])(-?\\p{XDigit}+)";
+			this.pattern = Pattern.compile(patron);
+			matcher = pattern.matcher(this.display.getText());
+			if (matcher.find()) {
+				this.num1 = Integer.parseInt(matcher.group(1), 16);
+				this.operation = matcher.group(2).charAt(0);
+				this.num2 = Integer.parseInt(matcher.group(3), 16);
+			}
+		}
+
 	}
 
+	/**
+	 * Pasa el número a la base correspondiente y lo escribe en el display
+	 */
+	public void escribirNumeros() {
+		String res = "Error";
+		if (bs == Base.DECIMAL) {
+			res = "" + this.result;
+		} else if (bs == Base.BINARIO) {
+			res = Integer.toBinaryString(this.result);
+		} else if (bs == Base.OCTAL) {
+			res = Integer.toOctalString(this.result);
+		} else if (bs == Base.HEXADECIMAL) {
+			res = Integer.toHexString(this.result);
+		}
+
+		this.display.setText(res);
+	}
 }
