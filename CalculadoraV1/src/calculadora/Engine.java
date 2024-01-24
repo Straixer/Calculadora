@@ -383,7 +383,7 @@ public class Engine implements ActionListener {
 		} else if (input_text.equals("Info")) {
 			VentanaEmergente v = new VentanaEmergente("Ventana informativa, quiero sacar un 10");
 		} else if (input_text.equals("Owner")) {
-			VentanaEmergente v = new VentanaEmergente("Ventana informativa, quiero sacar un 10");
+			VentanaEmergente v = new VentanaEmergente("Ventana de propietario, quiero sacar un 10");
 		} else if (input_text.equals("CASIO")) {
 			try {
 				Desktop.getDesktop().browse(new URI("https://www.casio.com/es/"));
@@ -410,30 +410,29 @@ public class Engine implements ActionListener {
 
 		// SWITCH PARA CADA OPERADOR
 		switch (this.operation) {
-			case '+': {
-				this.result = num1 + num2;
-				break;
-			}
-			case '-': {
-				this.result = this.num1 - this.num2;
-				break;
-			}
-			case 'X': {
-				this.result = num1 * num2;
-				break;
-			}
-			case '/': {
-				this.result = num1 / num2;
+		case '+': {
+			this.result = num1 + num2;
+			break;
+		}
+		case '-': {
+			this.result = this.num1 - this.num2;
+			break;
+		}
+		case 'X': {
+			this.result = num1 * num2;
+			break;
+		}
+		case '/': {
+			this.result = num1 / num2;
 
-				break;
-			}
+			break;
+		}
 
 		}
 		// SE MUESTRA EL RESULTADO POR PANTALLA
 		escribirNumeros();
-		// EL NUMERO 1 SE CONVIERTE EN EL RESULTADO
-		this.num1 = this.result;
 		// LOS OTROS VALORES SE PONEN A 0
+		this.num1 = 0;
 		this.num2 = 0;
 		this.result = 0;
 
@@ -512,6 +511,7 @@ public class Engine implements ActionListener {
 		this.datosPanel.setBackground(this.colorDisplay);
 
 	}
+
 	/**
 	 * Pasa el número del display a decimal para poder operar con los valores
 	 */
@@ -567,11 +567,29 @@ public class Engine implements ActionListener {
 		if (bs == Base.DECIMAL) {
 			res = "" + this.result;
 		} else if (bs == Base.BINARIO) {
-			res = Integer.toBinaryString(this.result);
+			if (this.result < 0) {
+				this.result = this.result * -1;
+				res = "-" + Integer.toBinaryString(this.result);
+			} else {
+				res = Integer.toBinaryString(this.result);
+			}
+
 		} else if (bs == Base.OCTAL) {
-			res = Integer.toOctalString(this.result);
+			if (this.result < 0) {
+				this.result = this.result * -1;
+				res = "-" + Integer.toOctalString(this.result);
+			} else {
+				res = Integer.toOctalString(this.result);
+			}
+
 		} else if (bs == Base.HEXADECIMAL) {
-			res = Integer.toHexString(this.result);
+			if (this.result < 0) {
+				this.result = this.result * -1;
+				res = "-" + Integer.toHexString(this.result).toUpperCase();
+			} else {
+				res = Integer.toHexString(this.result).toUpperCase();
+			}
+
 		}
 
 		this.display.setText(res);
